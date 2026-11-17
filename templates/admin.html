@@ -1,0 +1,17 @@
+<!DOCTYPE html><html lang="ru"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Панель администратора</title><style>
+*{box-sizing:border-box;margin:0;padding:0;font-family:Arial,sans-serif}body{min-height:100vh;background:#0b0f19;color:#f8fafc;display:flex;justify-content:center;align-items:center;padding:20px}.card{width:100%;max-width:580px;background:#121826f2;border:1px solid #ffffff18;border-radius:20px;padding:30px;box-shadow:0 20px 40px #0009}h1{font-size:22px;margin-bottom:22px}.group{display:flex;flex-direction:column;gap:7px;margin-bottom:15px}label{font-size:13px;color:#94a3b8;font-weight:bold}input{background:#111827;border:1px solid #ffffff18;border-radius:10px;padding:12px;color:white;font-size:14px;outline:none}input:focus{border-color:#6366f1}.submit{width:100%;background:#6366f1;color:white;border:0;border-radius:10px;padding:13px;font-weight:bold;cursor:pointer;margin-top:8px}.status{display:none;margin-top:14px;padding:11px;border-radius:9px;text-align:center;font-size:13px}.success{background:#10b98122;color:#10b981}.error{background:#ef444422;color:#ef4444}
+</style></head><body><main class="card">
+{% if not authenticated %}<h1>🔐 Вход в админ-панель</h1><form action="/admin/login" method="POST"><div class="group"><label>Пароль администратора</label><input type="password" name="password" placeholder="Введите пароль" required autofocus></div><button class="submit" type="submit">Войти</button></form>
+{% else %}<h1>⚙️ Редактирование витрины</h1><form id="settings-form">
+<div class="group"><label>Заголовок магазина</label><input type="text" id="title" value="{{ cfg.title }}" required></div>
+<div class="group"><label>Подзаголовок (описание)</label><input type="text" id="subtitle" value="{{ cfg.subtitle }}" required></div>
+<div class="group"><label>Ссылка Telegram</label><input type="text" id="telegram" value="{{ cfg.telegram }}"></div>
+<div class="group"><label>Ссылка FunPay</label><input type="text" id="funpay" value="{{ cfg.funpay }}"></div>
+<div class="group"><label>Ссылка Instagram</label><input type="text" id="instagram" value="{{ cfg.instagram }}"></div>
+<div class="group"><label>Контактный Email</label><input type="text" id="email" value="{{ cfg.email }}"></div>
+<div class="group"><label>URL фонового изображения</label><input type="text" id="bg_image" value="{{ cfg.bg_image }}" placeholder="https://example.com/bg.jpg"></div>
+<button class="submit" type="submit">Сохранить изменения</button></form><div id="status-box" class="status"></div>
+{% endif %}</main>
+{% if authenticated %}<script>
+document.getElementById("settings-form").onsubmit=async e=>{e.preventDefault();const box=document.getElementById("status-box");box.style.display="none";const payload={title:document.getElementById("title").value,subtitle:document.getElementById("subtitle").value,telegram:document.getElementById("telegram").value,funpay:document.getElementById("funpay").value,instagram:document.getElementById("instagram").value,email:document.getElementById("email").value,bg_image:document.getElementById("bg_image").value};try{const res=await fetch("/admin/save",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(payload)}),data=await res.json();box.className="status "+(res.ok?"success":"error");box.textContent=res.ok?(data.message||"Настройки успешно сохранены!"):(data.detail||"Ошибка при сохранении")}catch(err){box.className="status error";box.textContent="Сетевая ошибка"}box.style.display="block"};
+</script>{% endif %}</body></html>
